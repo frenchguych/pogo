@@ -1,6 +1,6 @@
 name: pogo
-base: core18
-version: git
+adopt-info: pogo
+base: core20
 summary: A fast and minimalist audio player for Linux
 description: |
   Pogo is a fast and minimalist audio player for Linux. It
@@ -15,6 +15,9 @@ description: |
   Python and uses GTK+ and GStreamer.
 grade: stable
 confinement: strict
+architectures:
+  - build-on: amd-64
+compression: lzo
 
 slots:
   dbus-daemon:
@@ -46,24 +49,39 @@ parts:
       - libslang2
 
   pogo:
-    source: .
-    plugin: dump
     after:
       - dependencies
+    plugin: nil
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "v1.0.1"
+    override-build: |
+      prefix=$SNAPCRAFT_PART_INSTALL make install
+      sed -i 's/^prefix = .*/import os\nprefix = os.environ.get("SNAP")/g' $SNAPCRAFT_PART_INSTALL/bin/pogo
+    build-packages:
+      - gettext
 
 apps:
   pogo:
-    command: usr/bin/python3 $SNAP/pogo.py
-    extensions: 
-      - gnome-3-28
-    slots:
-      - dbus-daemon
+    extensions:
+      - gnome-3-38
+    command: bin/pogo
     environment:
-      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages
+      PYTHONPATH: $SNAP/usr/lib/python3/dist-packages:$SNAP_DESKTOP_RUNTIME/usr/lib/python3.6/site-packages:$PYTHONPATH
       LD_LIBRARY_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET
       GI_TYPELIB_PATH: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/girepository-1.0
     plugs:
+      - process-control
+      - x11
+    slots:
+      - dbus-daemon
+      - mpris
+    plugs:
+      - unity7
       - home
-      - removable-media
-      - system-observe
+      - network
+      - opengl
       - audio-playback
+      - removable-media
+      - mount-observe

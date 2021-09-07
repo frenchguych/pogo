@@ -1,3 +1,7 @@
 *.py[cod]
 /res/*.ui.h
 /pogo.geany
+
+*.snap
+
+snap/local/snapcraft.yaml
