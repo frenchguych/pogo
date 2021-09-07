@@ -77,8 +77,8 @@ apps:
     slots:
       - dbus-daemon
     plugs:
-      - network-bind
       - mpris
+      - network-bind
       - unity7
       - home
       - network
